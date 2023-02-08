@@ -7,13 +7,13 @@ const jwt = require("jsonwebtoken");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
 const PORT = process.env.PORT || 8080;
-const Post = require("./shematics/Post");
-const User = require("./shematics/User");
-const Comment = require("./shematics/Comment");
-const Community = require("./shematics/Community");
+const Post = require("./schematics/Post");
+const User = require("./schematics/User");
+const Comment = require("./schematics/Comment");
+const Community = require("./schematics/Community");
 const LocalStrategy = require("passport-local").Strategy;
 const session = require("express-session");
-const PersonalPost = require("./shematics/PersonalPost");
+const PersonalPost = require("./schematics/PersonalPost");
 const MemoryStore = require("memorystore")(session);
 const app = express();
 const path = require("path");
@@ -319,36 +319,36 @@ app.post("/user/sign-up", async (req, res, next) => {
   });
 });
 
-// app.put("/update-password", function (req, res) {
-//   console.log(req.body);
-//   User.findOne({ _id: req.body.user._id }, (err, user) => {
-//     // console.log(user);
-//     // Check if error connecting
-//     if (err) {
-//       res.json({ success: false, message: err }); // Return error
-//     } else {
-//       // Check if user was found in database
-//       if (!user) {
-//         res.json({ success: false, message: "User not found" });
-//       } else {
-//         user.setPassword(
-//           //  req.body.oldPw,
-//           req.body.newPw,
-//           function (err) {
-//             if (err) {
-//               console.log(res.json(err));
-//             } else {
-//               user.save();
-//               res.status(200).json({
-//                 message: "password reset successful",
-//               });
-//             }
-//           }
-//         );
-//       }
-//     }
-//   });
-// });
+app.put("/update-password", function (req, res) {
+  console.log(req.body);
+  User.findOne({ _id: req.body.user._id }, (err, user) => {
+    // console.log(user);
+    // Check if error connecting
+    if (err) {
+      res.json({ success: false, message: err }); // Return error
+    } else {
+      // Check if user was found in database
+      if (!user) {
+        res.json({ success: false, message: "User not found" });
+      } else {
+        user.setPassword(
+          //  req.body.oldPw,
+          req.body.newPw,
+          function (err) {
+            if (err) {
+              console.log(res.json(err));
+            } else {
+              user.save();
+              res.status(200).json({
+                message: "password reset successful",
+              });
+            }
+          }
+        );
+      }
+    }
+  });
+});
 
 // Log in
 app.post("/user/log-in", function (req, res, next) {
