@@ -319,9 +319,19 @@ app.post("/user/sign-up", async (req, res, next) => {
   });
 });
 
+// find user
+app.get("/find-user", function (req, res) {
+  User.findOne({ _id: req.headers.userid }, (err, user) => {
+    if (err) {
+      res.json(err);
+    } else {
+      res.json(user);
+    }
+  });
+});
+
 app.put("/update-password", function (req, res) {
-  console.log(req.body);
-  User.findOne({ _id: req.body.user._id }, (err, user) => {
+  User.findOne({ _id: req.body._id }, (err, user) => {
     // console.log(user);
     // Check if error connecting
     if (err) {
@@ -338,9 +348,11 @@ app.put("/update-password", function (req, res) {
             if (err) {
               console.log(res.json(err));
             } else {
-              user.save();
-              res.status(200).json({
-                message: "password reset successful",
+              user.save((err, obj) => {
+                if (err) {
+                  return next(err);
+                }
+                res.status(200).json(obj);
               });
             }
           }
@@ -348,6 +360,36 @@ app.put("/update-password", function (req, res) {
       }
     }
   });
+});
+
+app.post("/update-email", (req, res) => {
+  User.updateOne(
+    // update?? aggregate?? find??
+    { _id: req.body.userId },
+    {
+      $set: { email: req.body.newEmail },
+    }
+  )
+    .then((result) => {
+      res.sendStatus(200);
+    })
+    .catch((err) => {
+      res.json(err);
+    });
+});
+
+app.post("/delete-account", (req, res) => {
+  User.deleteOne(
+    // update?? aggregate?? find??
+    { _id: req.body.userId }
+  )
+    .then((result) => {
+      res.sendStatus(200);
+    })
+    .catch((err) => {
+      res.json(err);
+    });
+  // delete posts and comments as well?
 });
 
 // Log in
@@ -631,8 +673,6 @@ app.post("/like-post", (req, res) => {
 // unlike Post
 app.post("/unlike-post", (req, res) => {
   Post.updateOne(
-    // update?? aggregate?? find??
-
     { _id: req.body.postId, likedByUsers: { $eq: req.body.userId } },
     {
       $pull: { likedByUsers: req.body.userId },
