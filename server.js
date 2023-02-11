@@ -57,6 +57,7 @@ mongoose.connect(
 );
 // const db = mongoose.connection;
 const conn = mongoose.connection;
+
 let gfs;
 conn.once("open", () => {
   // Init stream
@@ -463,6 +464,56 @@ app.get("/retrieve-personal-posts", (req, res) => {
     .catch((err) => {
       res.json(err);
     });
+});
+
+app.get("/search/:query", (req, res) => {
+  // let query = [
+  //   {
+  //     $search: {
+  //       index: "default",
+  //       text: {
+  //         query: req.headers.searchquery,
+  //         path: {
+  //           wildcard: "*",
+  //         },
+  //       },
+  //     },
+  //   },
+  // ];
+  // Post.find(
+  //   {
+  //     query,
+  //   },
+  //   (err, result) => {
+  //     if (err) {
+  //       console.log("err: ", err);
+  //       res.json(err);
+  //     } else {
+  //       console.log("res :", result);
+  //       res.json(result);
+  //     }
+  //   }
+  // );
+  let query = [
+    {
+      $search: {
+        index: "default",
+        text: {
+          query: req.headers.searchquery,
+          path: {
+            wildcard: "*",
+          },
+        },
+      },
+    },
+  ];
+  Post.aggregate(query, (err, result) => {
+    if (err) {
+      res.json(err);
+    } else {
+      res.json(result);
+    }
+  });
 });
 
 // Get comments (from specific parent)
